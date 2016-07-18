@@ -1,0 +1,16 @@
+[
+{
+  "modid": "agt",
+  "name": "Arrow Gun Thingy",
+  "description": "Gun-like arrow firing weapons",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["HoldYourWaffle"],
+  "credits": "CurzBishop for being an awesome guy",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
