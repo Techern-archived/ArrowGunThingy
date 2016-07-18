@@ -44,6 +44,12 @@ public class ItemAutomaticArrowGun extends Item {
 	}
 
 	@Override
+	public void onUsingTick(ItemStack stack, EntityLivingBase player, int count) {
+		fire(stack, player.getEntityWorld(), player);
+		super.onUsingTick(stack, player, count);
+	}
+
+	@Override
 	public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand hand) {
 		fire(itemStackIn, worldIn, playerIn);
 		boolean flag = this.findAmmo(playerIn) != null;
