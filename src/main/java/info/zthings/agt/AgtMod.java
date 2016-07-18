@@ -3,6 +3,7 @@ package info.zthings.agt;
 import info.zthings.agt.proxy.ClientProxy;
 import info.zthings.agt.proxy.CommonProxy;
 import net.minecraft.item.Item;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -23,11 +24,16 @@ public class AgtMod {
                 serverSide = "info.zthings.agt.proxy.CommonProxy")
     public static CommonProxy PROXY;
     
-    private static final Item BAG = new ItemBasicArrowGun();
+    public static final Item BAG = new ItemBasicArrowGun();
+    public static final Item AAG = new ItemAutomaticArrowGun();
     
     @EventHandler
     public void init(FMLInitializationEvent event) {
+    	MinecraftForge.EVENT_BUS.register(new AgtEventHandler());
+    	
         GameRegistry.registerItem(BAG);
         PROXY.registerItemModelMesher(BAG, 0);
+        GameRegistry.registerItem(AAG);
+        PROXY.registerItemModelMesher(AAG, 0);
     }
 }

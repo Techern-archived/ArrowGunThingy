@@ -5,6 +5,7 @@ import javax.annotation.Nullable;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.init.Enchantments;
@@ -27,27 +28,56 @@ import net.minecraftforge.event.ForgeEventFactory;
  * 
  * @author HoldYourWaffle
  */
-public class ItemBasicArrowGun extends Item {
-	/**
-	 * 
-	 */
-	public ItemBasicArrowGun() {
+public class ItemAutomaticArrowGun extends Item {
+
+	public ItemAutomaticArrowGun() {
 		this.maxStackSize = 1;
         this.setMaxDamage(384);
         this.setCreativeTab(CreativeTabs.COMBAT);
-        this.setUnlocalizedName("basicarrowgun");
-        this.setRegistryName("basicarrowgun");
+        this.setUnlocalizedName("automaticarrowgun");
+        this.setRegistryName("automaticarrowgun");
 	}
 	
 	@Override
-	public void onPlayerStoppedUsing(ItemStack stack, World worldIn, EntityLivingBase entityLiving, int timeLeft) {
+	public int getMaxItemUseDuration(ItemStack stack) {
+		return 100;
+	}
+
+	@Override
+	public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand hand) {
+		fire(itemStackIn, worldIn, playerIn);
+		boolean flag = this.findAmmo(playerIn) != null;
+		
+		ActionResult<ItemStack> ret = ForgeEventFactory.onArrowNock(itemStackIn, worldIn, playerIn, hand, flag);
+		if (ret != null)
+			return ret;
+
+		if (!playerIn.capabilities.isCreativeMode && !flag) {
+			return !flag ? new ActionResult<ItemStack>(EnumActionResult.FAIL, itemStackIn) : new ActionResult<ItemStack>(EnumActionResult.PASS, itemStackIn);
+		} else {
+			playerIn.setActiveHand(hand);
+			return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, itemStackIn);
+		}
+	}
+
+	/**
+	 * Return the enchantability factor of the item, most of the time is based
+	 * on material.
+	 */
+	@Override
+	public int getItemEnchantability() {
+		return 1;
+	}
+	
+	public void fire(ItemStack stack, World worldIn, EntityLivingBase entityLiving) {
+		System.out.print("pew");
 		if (entityLiving instanceof EntityPlayer) {
 			EntityPlayer entityplayer = (EntityPlayer) entityLiving;
 			boolean flag = entityplayer.capabilities.isCreativeMode || EnchantmentHelper.getEnchantmentLevel(Enchantments.INFINITY, stack) > 0;
 			ItemStack itemstack = this.findAmmo(entityplayer);
 
-			int i = this.getMaxItemUseDuration(stack) - timeLeft;
-			i = net.minecraftforge.event.ForgeEventFactory.onArrowLoose(stack, worldIn, (EntityPlayer) entityLiving, i, itemstack != null || flag);
+			int i = 100;
+			i = ForgeEventFactory.onArrowLoose(stack, worldIn, (EntityPlayer) entityLiving, i, itemstack != null || flag);
 			if (i < 0)
 				return;
 
@@ -103,43 +133,6 @@ public class ItemBasicArrowGun extends Item {
 			}
 		}
 	}
-	
-	@Override
-	public int getMaxItemUseDuration(ItemStack stack) {
-		return 100;
-	}
-
-	@Override
-	public EnumAction getItemUseAction(ItemStack stack) {
-		return EnumAction.BOW;
-	}
-	
-	@Override
-	public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand hand) {
-		boolean flag = this.findAmmo(playerIn) != null;
-		
-		ActionResult<ItemStack> ret = ForgeEventFactory.onArrowNock(itemStackIn, worldIn, playerIn, hand, flag);
-		if (ret != null)
-			return ret;
-
-		if (!playerIn.capabilities.isCreativeMode && !flag) {
-			return !flag ? new ActionResult<ItemStack>(EnumActionResult.FAIL, itemStackIn) : new ActionResult<ItemStack>(EnumActionResult.PASS, itemStackIn);
-		} else {
-			playerIn.setActiveHand(hand);
-			return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, itemStackIn);
-		}
-	}
-
-	/**
-	 * Return the enchantability factor of the item, most of the time is based
-	 * on material.
-	 */
-	@Override
-	public int getItemEnchantability() {
-		return 1;
-	}
-	
-	
 	
 	private ItemStack findAmmo(EntityPlayer player) {
 		if (this.isArrow(player.getHeldItem(EnumHand.OFF_HAND))) return player.getHeldItem(EnumHand.OFF_HAND);
