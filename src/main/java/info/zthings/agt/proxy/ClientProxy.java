@@ -22,9 +22,23 @@ public class ClientProxy extends CommonProxy {
      * @since 0.0.1
      */
     @Override
-    public void registerItemModelMesher(Item item, int metadata) {
-    	System.out.println(new ModelResourceLocation("agt:" + item.getUnlocalizedName()).toString());
-        Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, metadata, new ModelResourceLocation("agt:" + item.getUnlocalizedName()));
+    public void registerItemModelMesher(Item item, int metadata, String itemName) {
+        Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, metadata, new ModelResourceLocation("agt:" + itemName));
+    }
+
+    /**
+     * Registers an {@link Item} in the {@link ItemModelMesher}
+     *
+     * @param item     The {@link Item} being registered
+     * @param metadata The metadata of said item
+     * @param itemName The item's name
+     * @param metadataNameAndValue The name and value of the metadata
+     *
+     * @since 0.0.1
+     */
+    @Override
+    public void registerItemModelMesher(Item item, int metadata, String itemName, String metadataNameAndValue) {
+        Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, metadata, new ModelResourceLocation("agt:" + itemName, metadataNameAndValue));
     }
 
 }
