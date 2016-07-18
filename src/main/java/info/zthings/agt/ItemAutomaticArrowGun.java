@@ -5,13 +5,11 @@ import javax.annotation.Nullable;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.init.Enchantments;
 import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
-import net.minecraft.item.EnumAction;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemArrow;
 import net.minecraft.item.ItemStack;
@@ -32,17 +30,12 @@ public class ItemAutomaticArrowGun extends Item {
 
 	public ItemAutomaticArrowGun() {
 		this.maxStackSize = 1;
-        this.setMaxDamage(384);
+        this.setMaxDamage(1024);
         this.setCreativeTab(CreativeTabs.COMBAT);
         this.setUnlocalizedName("automaticarrowgun");
         this.setRegistryName("automaticarrowgun");
 	}
 	
-	@Override
-	public int getMaxItemUseDuration(ItemStack stack) {
-		return 100;
-	}
-
 	@Override
 	public void onUsingTick(ItemStack stack, EntityLivingBase player, int count) {
 		fire(stack, player.getEntityWorld(), player);
@@ -51,7 +44,6 @@ public class ItemAutomaticArrowGun extends Item {
 
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand hand) {
-		fire(itemStackIn, worldIn, playerIn);
 		boolean flag = this.findAmmo(playerIn) != null;
 		
 		ActionResult<ItemStack> ret = ForgeEventFactory.onArrowNock(itemStackIn, worldIn, playerIn, hand, flag);
@@ -76,67 +68,64 @@ public class ItemAutomaticArrowGun extends Item {
 	}
 	
 	public void fire(ItemStack stack, World worldIn, EntityLivingBase entityLiving) {
-		System.out.print("pew");
-		if (entityLiving instanceof EntityPlayer) {
-			EntityPlayer entityplayer = (EntityPlayer) entityLiving;
-			boolean flag = entityplayer.capabilities.isCreativeMode || EnchantmentHelper.getEnchantmentLevel(Enchantments.INFINITY, stack) > 0;
-			ItemStack itemstack = this.findAmmo(entityplayer);
+		EntityPlayer entityplayer = (EntityPlayer) entityLiving;
+		boolean flag = entityplayer.capabilities.isCreativeMode || EnchantmentHelper.getEnchantmentLevel(Enchantments.INFINITY, stack) > 0;
+		ItemStack itemstack = this.findAmmo(entityplayer);
 
-			int i = 100;
-			i = ForgeEventFactory.onArrowLoose(stack, worldIn, (EntityPlayer) entityLiving, i, itemstack != null || flag);
-			if (i < 0)
-				return;
+		int i = 100;
+		i = ForgeEventFactory.onArrowLoose(stack, worldIn, (EntityPlayer) entityLiving, i, itemstack != null || flag);
+		if (i < 0)
+			return;
 
-			if (itemstack != null || flag) {
-				if (itemstack == null) {
-					itemstack = new ItemStack(Items.ARROW);
-				}
-
-				boolean flag1 = entityplayer.capabilities.isCreativeMode || (itemstack.getItem() instanceof ItemArrow ? ((ItemArrow) itemstack.getItem()).isInfinite(itemstack, stack, entityplayer) : false);
-
-				if (!worldIn.isRemote) {
-					ItemArrow itemarrow = ((ItemArrow) (itemstack.getItem() instanceof ItemArrow ? itemstack.getItem() : Items.ARROW));
-					EntityArrow entityarrow = itemarrow.createArrow(worldIn, itemstack, entityplayer);
-					entityarrow.setAim(entityplayer, entityplayer.rotationPitch, entityplayer.rotationYaw, 0.0F, 1F * 3.0F, 1.0F);
-					entityarrow.setIsCritical(true);
-
-					int j = EnchantmentHelper.getEnchantmentLevel(Enchantments.POWER, stack);
-
-					if (j > 0) {
-						entityarrow.setDamage(entityarrow.getDamage() + j * 0.5D + 0.5D);
-					}
-
-					int k = EnchantmentHelper.getEnchantmentLevel(Enchantments.PUNCH, stack);
-
-					if (k > 0) {
-						entityarrow.setKnockbackStrength(k);
-					}
-
-					if (EnchantmentHelper.getEnchantmentLevel(Enchantments.FLAME, stack) > 0) {
-						entityarrow.setFire(100);
-					}
-
-					stack.damageItem(1, entityplayer);
-
-					if (flag1) {
-						entityarrow.pickupStatus = EntityArrow.PickupStatus.CREATIVE_ONLY;
-					}
-
-					worldIn.spawnEntityInWorld(entityarrow);
-				}
-
-				worldIn.playSound((EntityPlayer) null, entityplayer.posX, entityplayer.posY, entityplayer.posZ, SoundEvents.ENTITY_ARROW_SHOOT, SoundCategory.NEUTRAL, 1.0F, 1.0F / (itemRand.nextFloat() * 0.4F + 1.2F) + .5F);
-
-				if (!flag1) {
-					--itemstack.stackSize;
-
-					if (itemstack.stackSize == 0) {
-						entityplayer.inventory.deleteStack(itemstack);
-					}
-				}
-
-				entityplayer.addStat(StatList.getObjectUseStats(this));
+		if (itemstack != null || flag) {
+			if (itemstack == null) {
+				itemstack = new ItemStack(Items.ARROW);
 			}
+
+			boolean flag1 = entityplayer.capabilities.isCreativeMode || (itemstack.getItem() instanceof ItemArrow ? ((ItemArrow) itemstack.getItem()).isInfinite(itemstack, stack, entityplayer) : false);
+
+			if (!worldIn.isRemote) {
+				ItemArrow itemarrow = ((ItemArrow) (itemstack.getItem() instanceof ItemArrow ? itemstack.getItem() : Items.ARROW));
+				EntityArrow entityarrow = itemarrow.createArrow(worldIn, itemstack, entityplayer);
+				entityarrow.setAim(entityplayer, entityplayer.rotationPitch, entityplayer.rotationYaw, 0.0F, 3F, 5.0F);
+				entityplayer.renderYawOffset += .1F;
+
+				int j = EnchantmentHelper.getEnchantmentLevel(Enchantments.POWER, stack);
+
+				if (j > 0) {
+					entityarrow.setDamage(entityarrow.getDamage() + j * 0.5D + 0.5D);
+				}
+
+				int k = EnchantmentHelper.getEnchantmentLevel(Enchantments.PUNCH, stack);
+
+				if (k > 0) {
+					entityarrow.setKnockbackStrength(k);
+				}
+
+				if (EnchantmentHelper.getEnchantmentLevel(Enchantments.FLAME, stack) > 0) {
+					entityarrow.setFire(100);
+				}
+
+				stack.damageItem(1, entityplayer);
+
+				if (flag1) {
+					entityarrow.pickupStatus = EntityArrow.PickupStatus.CREATIVE_ONLY;
+				}
+
+				worldIn.spawnEntityInWorld(entityarrow);
+			}
+
+			worldIn.playSound((EntityPlayer) null, entityplayer.posX, entityplayer.posY, entityplayer.posZ, SoundEvents.ENTITY_ARROW_SHOOT, SoundCategory.NEUTRAL, 1.0F, 1.0F / (itemRand.nextFloat() * 0.4F + 1.2F) + .5F);
+
+			if (!flag1) {
+				--itemstack.stackSize;
+
+				if (itemstack.stackSize == 0) {
+					entityplayer.inventory.deleteStack(itemstack);
+				}
+			}
+
+			entityplayer.addStat(StatList.getObjectUseStats(this));
 		}
 	}
 	

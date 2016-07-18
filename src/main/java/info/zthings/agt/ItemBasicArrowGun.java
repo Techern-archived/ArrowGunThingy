@@ -47,7 +47,7 @@ public class ItemBasicArrowGun extends Item {
 			ItemStack itemstack = this.findAmmo(entityplayer);
 
 			int i = this.getMaxItemUseDuration(stack) - timeLeft;
-			i = net.minecraftforge.event.ForgeEventFactory.onArrowLoose(stack, worldIn, (EntityPlayer) entityLiving, i, itemstack != null || flag);
+			i = ForgeEventFactory.onArrowLoose(stack, worldIn, (EntityPlayer) entityLiving, i, itemstack != null || flag);
 			if (i < 0)
 				return;
 
@@ -105,16 +105,6 @@ public class ItemBasicArrowGun extends Item {
 	}
 	
 	@Override
-	public int getMaxItemUseDuration(ItemStack stack) {
-		return 100;
-	}
-
-	@Override
-	public EnumAction getItemUseAction(ItemStack stack) {
-		return EnumAction.BOW;
-	}
-	
-	@Override
 	public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand hand) {
 		boolean flag = this.findAmmo(playerIn) != null;
 		
@@ -130,16 +120,10 @@ public class ItemBasicArrowGun extends Item {
 		}
 	}
 
-	/**
-	 * Return the enchantability factor of the item, most of the time is based
-	 * on material.
-	 */
 	@Override
 	public int getItemEnchantability() {
 		return 1;
 	}
-	
-	
 	
 	private ItemStack findAmmo(EntityPlayer player) {
 		if (this.isArrow(player.getHeldItem(EnumHand.OFF_HAND))) return player.getHeldItem(EnumHand.OFF_HAND);
