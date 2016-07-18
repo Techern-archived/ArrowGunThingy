@@ -27,7 +27,7 @@ public class AgtMod {
     
     @EventHandler
     public void init(FMLInitializationEvent event) {
-        GameRegistry.registerItem(BAG);
-        PROXY.registerItemModelMesher(BAG, 0, "basicarrowgun");
+        GameRegistry.register(BAG);
+        PROXY.registerItemModelMesher(BAG, 0, "basicarrowgun", "inventory");
     }
 }
