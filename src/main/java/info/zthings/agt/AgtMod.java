@@ -31,9 +31,9 @@ public class AgtMod {
     public void init(FMLInitializationEvent event) {
     	MinecraftForge.EVENT_BUS.register(new AgtEventHandler());
     	
-        GameRegistry.registerItem(BAG);
-        PROXY.registerItemModelMesher(BAG, 0);
-        GameRegistry.registerItem(AAG);
-        PROXY.registerItemModelMesher(AAG, 0);
+        GameRegistry.register(BAG);
+        PROXY.registerItemModelMesher(BAG, 0, "basicarrowgun", "inventory");
+        GameRegistry.register(AAG);
+        PROXY.registerItemModelMesher(AAG, 0, "automaticarrowgun", "inventory");
     }
 }
